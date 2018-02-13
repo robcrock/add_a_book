@@ -25,13 +25,40 @@ UI.prototype.addBook = function(book) {
   list.appendChild(row);
 }
 
+// Validate new entries
+UI.prototype.showAlert = function (message, className) {
+  // Create div
+  const div = document.createElement('div');
+  // Add classes
+  div.className =  `alert ${className}`;
+  // Add text
+  div.appendChild(document.createTextNode(message));
+  // Get parent
+  const container = document.querySelector('.container');
+  // Get form
+  const form = document.querySelector('#book-form');
+  // Insert
+  container.insertBefore(div, form)
+  // Dissapear after 3 seconds
+  setTimeout(() => {
+    document.querySelector('.alert').remove();
+  }, 3000);
+}
+
+// Delete book
+UI.prototype.deleteBook = (target) => {
+  if(target.className === 'delete') {
+    target.parentElement.parentElement.remove(); 
+  }
+}
+
 UI.prototype.clearFields = function() {
   document.querySelector('#title').value = '';
   document.querySelector('#author').value = '';
   document.querySelector('#isbn').value = '';
 }
 
-// Event listener
+// Event listener for adding books
 document.querySelector('#book-form').addEventListener('submit', function(e) {
   // Get form values
   const title = document.querySelector('#title').value,
@@ -44,11 +71,30 @@ document.querySelector('#book-form').addEventListener('submit', function(e) {
   // Instantiate UI
   const ui = new UI();
 
-  // Add book to list
-  ui.addBook(book);
+  // Validate
+  if(title === '' || author === '' || isbn === '') {
+    ui.showAlert('Please fill in all fields.', 'error');
+  } else {
+    ui.showAlert('Book added!', 'success');
+    // Add book to list
+    ui.addBook(book);
 
-  // Clear fields
-  ui.clearFields();
+    // Clear fields
+    ui.clearFields();
+  }
+
+  e.preventDefault();
+})
+
+// Event listener to delete books
+document.querySelector('#book-list').addEventListener('click', (e) => {
+
+  // Instatiate UI
+  const ui = new UI();
+  // Delete book
+  ui.deleteBook(e.target);
+  // Show message
+  ui.showAlert('Book removed!', 'success');
 
   e.preventDefault();
 })
